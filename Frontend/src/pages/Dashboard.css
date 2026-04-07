@@ -1,0 +1,218 @@
+body {
+  margin: 0;
+  font-family: Onest;
+  background-color: #f9f9f9;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+.dashboard-header {
+  width: 100%;
+  background-color: #f8f9fa;
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 0; /* Remove rounded corners */
+  position: fixed; /* Fix the header to the top */
+  top: 0;
+  left: 0;
+  z-index: 1000;
+}
+
+.dashboard-header button {
+  background-color: #6c63ff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  margin-right: 45px;
+  border-radius: 20px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.dashboard-header button:hover {
+  background-color: #5a54d6;
+}
+
+.board-title {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+}
+
+.board-columns {
+  display: flex;
+  justify-content: space-between;
+  gap: 50px;
+  flex-grow: 1;
+  width: 100%;
+  height: calc(100vh - 250px); /* Full height minus the header height */
+  padding: 20px;
+  box-sizing: border-box;
+  overflow-x: auto;
+}
+.column {
+  background-color: #f8f9fa;
+  border-radius: 10px;
+  padding: 0 40px 40px 40px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* Ensure the footer stays at the bottom */
+  align-items: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  min-width: 250px;
+}
+
+.column-header {
+  width: 100%;
+  height: 41px;
+  text-align: center;
+  font-size: 19px;
+  font-weight: bold;
+  padding: 20px 40px 10px 40px;
+  margin-bottom: 30px;
+  color: rgb(52, 52, 52);
+  border-radius: 10px;
+}
+
+.column-header.done {
+  background-color: #d4edda; /* Soft green */
+}
+
+.column-header.working {
+  background-color: #fff3cd; /* Soft yellow */
+  color: #333;
+}
+
+.column-header.stuck {
+  background-color: #f8d7da; /* Soft red */
+}
+
+.column-header.not-started {
+  background-color: #e2e3e5; /* Soft gray */
+}
+
+.card {
+  background-color: white;
+  border-radius: 10px;
+  padding: 20px 15px 110px 15px;
+  margin: 15px 10px 15px 10px;
+  box-shadow: rgba(0, 0, 0, 0.093) 1.95px 1.95px 2.6px;
+  width: 100%;
+  text-align: left;
+  position: relative;
+}
+
+.card-title {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.card-description {
+  width: 100%;
+  padding: 8px 0px 8px 0px;
+  font-size: 14px;
+  border: none;
+  background-color: #f9f9f9;
+  color: #7c7c7c;
+  outline: none;
+  margin-top: 5px;
+  resize: none; /* Prevent resizing */
+  overflow-wrap: break-word; /* Ensure text wraps */
+  white-space: pre-wrap; /* Preserve line breaks */
+  min-height: 50px; /* Set a minimum height */
+}
+
+.card-description:focus {
+  border-color: #6c63ff;
+  box-shadow: rgba(149, 157, 165, 0.052) 0px 8px 24px;
+}
+
+.card-delete {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  color: rgb(0, 0, 0);
+  border: none;
+  height: 15px;
+  width: 15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 14px;
+  cursor: pointer;
+  opacity: 15%;
+}
+
+.card-delete:hover {
+  opacity: 100%;
+  box-shadow: rgba(0, 0, 0, 0.25) 0px 25px 50px -12px;
+}
+
+.column-footer {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: auto; /* Push the footer to the bottom */
+  padding-top: 10px; /* Add some spacing above the footer */
+}
+
+.add-card-button,
+.delete-column-button {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  font-size: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.add-card-button {
+  background-color: #6c757d; /* Soft green */
+  color: white;
+}
+
+.add-card-button:hover {
+  background-color: #575e64; /* Darker green */
+  box-shadow: rgba(0, 0, 0, 0.15) 2.4px 2.4px 3.2px;
+}
+
+.delete-column-button {
+  background-color: #d44453; /* Soft red */
+
+  color: white;
+}
+
+.delete-column-button:hover {
+  background-color: #bb3845; /* Darker red */
+  box-shadow: rgba(0, 0, 0, 0.15) 2.4px 2.4px 3.2px;
+}
+
+/* Media Queries for Responsiveness */
+@media (max-width: 768px) {
+  .board-columns {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .column {
+    width: 90%;
+    max-width: none;
+  }
+}

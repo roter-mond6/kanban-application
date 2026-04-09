@@ -1,12 +1,20 @@
 const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
+const connectDB = require("./config/db");
+const authRoutes = require("./routes/authRoutes");
+const taskRoutes = require("./routes/taskRoutes");
+const userRoutes = require("./routes/userRoutes");
 
 // Initialize dotenv to use environment variables
 dotenv.config();
 
 // Create an Express app
 const app = express();
+
+app.use("/api/auth", authRoutes);
+app.use("/api/tasks", taskRoutes);
+app.use("/api/users", userRoutes); // Add user routes
 
 // Middleware
 app.use(cors());

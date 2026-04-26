@@ -1,8 +1,2 @@
-fetch(`${API_BASE_URL}/boards`, {
-  headers: {
-    Authorization: `Bearer ${localStorage.getItem("token")}`,
-  },
-})
-  .then((res) => res.json())
-  .then((data) => setBoards(data))
-  .catch((err) => console.error(err));
+export const API_BASE_URL =
+  process.env.REACT_APP_API_URL || "http://localhost:5001";

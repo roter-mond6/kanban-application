@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Link, useNavigate } from "react-router-dom";
+import { API_BASE_URL } from "../api";
 import "./Login.css";
 
 function LoginPage() {
@@ -12,7 +12,7 @@ function LoginPage() {
     e.preventDefault();
 
     try {
-      const response = await fetch("http://localhost:5000/api/login", {
+      const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

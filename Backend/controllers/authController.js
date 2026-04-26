@@ -1,4 +1,4 @@
-const User = require("../models/User");
+const User = require("../models/users");
 const jwt = require("jsonwebtoken");
 
 // Generate JWT
@@ -14,7 +14,10 @@ exports.registerUser = async (req, res) => {
     // Check if user already exists
     const userExists = await User.findOne({ email });
     if (userExists) {
-      return res.status(400).json({ error: "Email already exists" });
+      return res.status(400).json({
+        message: "User already exists! Try logging in. 😄",
+        type: "warning",
+      });
     }
 
     // Create new user
@@ -25,7 +28,8 @@ exports.registerUser = async (req, res) => {
       token: generateToken(user._id),
     });
   } catch (error) {
-    res.status(500).json({ error: "Server error" });
+    console.error("Registration error:", error);
+    res.status(500).json({ error: error.message || "Server error" });
   }
 };
 
@@ -48,6 +52,7 @@ exports.loginUser = async (req, res) => {
       res.status(401).json({ error: "Invalid email or password" });
     }
   } catch (error) {
-    res.status(500).json({ error: "Server error" });
+    console.error("Login error:", error);
+    res.status(500).json({ error: error.message || "Server error" });
   }
 };

@@ -8,7 +8,7 @@ const {
   updateCard,
   deleteCard,
 } = require("../models/cardModel");
-const authenticateToken = require("../authMiddleware");
+const { protect: authenticateToken } = require("../middleware/authMiddleware");
 
 const router = express.Router();
 

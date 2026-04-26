@@ -1,5 +1,6 @@
 import React, { useState } from "react"; // Add useState here
 import { Link } from "react-router-dom"; // Ensure Link is imported for navigation
+import { API_BASE_URL } from "../api";
 import "./Register.css";
 
 function RegisterPage() {
@@ -19,7 +20,7 @@ function RegisterPage() {
     setError(""); // Clear any previous errors
 
     try {
-      const response = await fetch("http://localhost:5000/api/register", {
+      const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

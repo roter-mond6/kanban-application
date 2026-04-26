@@ -6,7 +6,7 @@ const {
   addBoard,
   deleteBoard,
 } = require("../models/boardModel");
-const authenticateToken = require("../authMiddleware");
+const { protect: authenticateToken } = require("../middleware/authMiddleware");
 
 const router = express.Router();
 

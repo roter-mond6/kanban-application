@@ -2,7 +2,7 @@ const express = require("express");
 const { v4: uuidv4 } = require("uuid");
 const { findBoardById } = require("../models/boardModel");
 const { findListById, addList, deleteList } = require("../models/listModel");
-const authenticateToken = require("../authMiddleware");
+const { protect: authenticateToken } = require("../middleware/authMiddleware");
 
 const router = express.Router();
 

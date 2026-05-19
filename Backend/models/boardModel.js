@@ -1,5 +1,15 @@
 const boards = [];
 
+const addBoard = (board) => {
+  const newBoard = {
+    ...board,
+    status: board.status || "working" // default
+  };
+
+  boards.push(newBoard);
+};
+
+
 // Function to find a board by ID
 const findBoardById = (id) => {
   return boards.find((board) => board.id === id);
@@ -10,10 +20,7 @@ const findBoardsByUser = (userId) => {
   return boards.filter((board) => board.owner === userId);
 };
 
-// Function to add a new board
-const addBoard = (board) => {
-  boards.push(board);
-};
+
 
 // Function to delete a board
 const deleteBoard = (id) => {
@@ -24,6 +31,11 @@ const deleteBoard = (id) => {
   }
   return false;
 };
+
+
+
+
+
 
 //idk what this does///
 module.exports = {

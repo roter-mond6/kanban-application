@@ -30,7 +30,6 @@ router.post("/", authenticateToken, (req, res) => {
     .json({ message: "Board created successfully", board: newBoard });
 });
 
-// GET /boards - Get all boards for the logged-in user
 router.get("/", authenticateToken, (req, res) => {
   const userBoards = findBoardsByUser(req.user.email);
   res.json(userBoards);

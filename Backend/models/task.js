@@ -1,34 +1,34 @@
-const task = [];
+const mongoose = require("mongoose");
 
-//Fnction to find a task by ID
-const findTaskById = (id) => {
-  return task.find((task) => task.id === id);
-};
+const taskSchema = new mongoose.Schema(
+  {
+    title: {
+      type: String,
+      required: true,
+    },
+    description: {
+      type: String,
+      default: "",
+    },
+    status: {
+      type: String,
+      enum: ["done", "working", "stuck", "not-started"],
+      default: "not-started",
+    },
+    boardId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Board",
+      required: true,
+    },
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+  },
+  {
+    timestamps: true,
+  },
+);
 
-//Function to find tasks by list ID
-const findTasksByListId = (listId) => {
-  return task.filter((task) => task.listId === listId);
-};
-
-//Function to add a new task
-const addTask = (task) => {
-  task.push(task);
-};
-
-//Function to delete a task
-const deleteTask = (id) => {
-  const index = task.findIndex((task) => task.id === id);
-  if (index !== -1) {
-    task.splice(index, 1);
-    return true;
-  }
-  return false;
-};
-
-module.exports = {
-  task,
-  findTaskById,
-  findTasksByListId,
-  addTask,
-  deleteTask,
-};
+module.exports = mongoose.model("Task", taskSchema);

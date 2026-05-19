@@ -18,7 +18,16 @@ exports.getUserProfile = async (req, res) => {
 
 // Update user profile
 exports.updateUserProfile = async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password } = req.body || {};
+  let profilePicture;
+
+  if (req.file) {
+    profilePicture = `data:${req.file.mimetype};base64,${req.file.buffer.toString(
+      "base64",
+    )}`;
+  } else {
+    profilePicture = req.body?.profilePicture;
+  }
 
   try {
     const user = await User.findById(req.user.id);
@@ -28,6 +37,9 @@ exports.updateUserProfile = async (req, res) => {
     }
 
     user.email = email || user.email;
+    if (profilePicture) {
+      user.profilePicture = profilePicture;
+    }
 
     if (password) {
       user.password = password; // Password will be hashed automatically by the pre-save middleware in the User model
@@ -40,6 +52,7 @@ exports.updateUserProfile = async (req, res) => {
       user: {
         id: updatedUser._id,
         email: updatedUser.email,
+        profilePicture: updatedUser.profilePicture,
       },
     });
   } catch (error) {

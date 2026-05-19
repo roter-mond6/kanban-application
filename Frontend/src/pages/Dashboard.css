@@ -16,17 +16,21 @@ body {
 
 .dashboard-header {
   width: 100%;
-  background-color: #f8f9fa;
-  padding: 15px 20px;
+  background-color: #c3b4f7;
+  padding: 12px 24px;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  border-radius: 0; /* Remove rounded corners */
-  position: fixed; /* Fix the header to the top */
+  border-radius: 0;
+  position: fixed;
   top: 0;
   left: 0;
+  right: 0;
+  gap: 970px;
+
   z-index: 1000;
+  height: 64px;
 }
 
 .dashboard-header button {
@@ -47,7 +51,7 @@ body {
 
 .menu-toggle-btn {
   background-color: transparent !important;
-  color: #333 !important;
+  color: #ffffff !important;
   font-size: 22px !important;
   padding: 8px !important;
   margin-right: 0 !important;
@@ -72,7 +76,7 @@ body {
   max-width: 40vw;
   font-size: 24px;
   font-weight: 700;
-  color: #333;
+  color: #ffffff;
   border: none;
   background: transparent;
   text-align: center;
@@ -195,12 +199,15 @@ body {
   font-family: Onest;
   font-size: 16px;
   font-weight: 700;
+  color: #333;
   border: none;
-  background: transparent;
-  color: #212529;
-  margin-bottom: 10px;
-  padding: 0;
+  background-color: transparent;
   outline: none;
+}
+.card-date {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
 }
 
 .card-title-input:focus {
@@ -265,6 +272,14 @@ body {
   display: flex;
   gap: 10px;
   margin-top: 5px;
+}
+
+.card-date-input-hidden {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
 }
 
 .card-date {

@@ -1,12 +1,13 @@
 const express = require("express");
 const { v4: uuidv4 } = require("uuid");
-const { findListById } = require("../models/listModel");
-const { findBoardById } = require("../models/boardModel");
+const { findListById, findListsByBoardId } = require("../models/listModel");
+const { findBoardById, findBoardsByUser } = require("../models/boardModel");
 const {
   findCardById,
   addCard,
   updateCard,
   deleteCard,
+  findCardsByListId,
 } = require("../models/cardModel");
 const { protect: authenticateToken } = require("../middleware/authMiddleware");
 
@@ -84,3 +85,47 @@ router.delete("/:id", authenticateToken, (req, res) => {
 });
 
 module.exports = router;
+
+// GET /cards/stats - return card counts for the logged-in user
+router.get("/stats", authenticateToken, (req, res) => {
+  try {
+    const userBoards = findBoardsByUser(req.user.email);
+    const boardIds = userBoards.map((b) => b.id);
+
+    let total = 0;
+    let done = 0;
+    let working = 0;
+    let not_started = 0;
+
+    boardIds.forEach((boardId) => {
+      const lists = findListsByBoardId(boardId);
+      lists.forEach((list) => {
+        const cards = findCardsByListId(list.id);
+        cards.forEach((card) => {
+          total++;
+          const status = card.status || "not_started";
+          if (status === "done" || status === "ended") done++;
+          else if (
+            status === "working" ||
+            status === "running" ||
+            status === "stuck"
+          ) {
+            working++;
+          } else {
+            not_started++;
+          }
+        });
+      });
+    });
+
+    return res.json({
+      total,
+      ended: done,
+      running: working,
+      pending: not_started,
+    });
+  } catch (err) {
+    console.error("Error getting card stats:", err);
+    return res.status(500).json({ error: "Failed to get card stats" });
+  }
+});

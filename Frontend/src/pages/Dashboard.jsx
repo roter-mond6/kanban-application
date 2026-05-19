@@ -17,43 +17,11 @@ import { API_BASE_URL } from "../api";
 
 function DashboardPage() {
   const navigate = useNavigate();
-  const [boardTitle, setBoardTitle] = useState("Board title");
+  const [boardTitle, setBoardTitle] = useState("KANBAN APP");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [boards, setBoards] = useState([]);
 
-  const formatDate = (date) => {
-    return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-  };
-
-  useEffect(() => {
-    fetchBoards();
-  }, []);
-
-  const fetchBoards = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      const response = await fetch(`${API_BASE_URL}/boards`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setBoards(data);
-      }
-    } catch (error) {
-      console.error("Error fetching boards:", error);
-    }
-  };
-
-  const [columns, setColumns] = useState([
-    { id: 1, title: "Done", color: "done", icon: faCheckCircle },
-    { id: 2, title: "Working on it", color: "working", icon: faClock },
-    { id: 3, title: "Stuck", color: "stuck", icon: faExclamationTriangle },
-    { id: 4, title: "Not Started", color: "not-started", icon: faCircleDot },
-  ]);
-
-  const [cards, setCards] = useState([
+  const initialCards = [
     {
       id: 1,
       columnId: 1,
@@ -90,19 +58,101 @@ function DashboardPage() {
       createdAt: new Date(),
       updatedAt: new Date(),
     },
+  ];
+
+  const formatDate = (date) => {
+    return new Date(date).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+    });
+  };
+
+  useEffect(() => {
+    fetchBoards();
+  }, []);
+
+  const fetchBoards = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${API_BASE_URL}/boards`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setBoards(data);
+      }
+    } catch (error) {
+      console.error("Error fetching boards:", error);
+    }
+  };
+
+  const [columns, setColumns] = useState([
+    { id: 1, title: "Done", color: "done", icon: faCheckCircle },
+    { id: 2, title: "Working on it", color: "working", icon: faClock },
+    { id: 3, title: "Stuck", color: "stuck", icon: faExclamationTriangle },
+    { id: 4, title: "Not Started", color: "not-started", icon: faCircleDot },
   ]);
+
+  const [cards, setCards] = useState(() => {
+    const saved = window.localStorage.getItem("kanban_dashboard_cards");
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        return parsed.map((card) => ({
+          ...card,
+          createdAt: new Date(card.createdAt),
+          updatedAt: new Date(card.updatedAt),
+        }));
+      } catch (error) {
+        console.error("Failed to parse saved dashboard cards", error);
+      }
+    }
+    return initialCards;
+  });
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(
+        "kanban_dashboard_cards",
+        JSON.stringify(cards),
+      );
+    } catch (error) {
+      console.error("Failed to save dashboard cards", error);
+    }
+  }, [cards]);
 
   const handleBack = () => {
     navigate("/board/1");
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate("/login");
-  };
+  const stats = cards.reduce(
+    (acc, card) => {
+      acc.total++;
+      if (card.columnId === 1) acc.done++;
+      if (card.columnId === 2) acc.working++;
+      if (card.columnId === 3) acc.stuck++;
+      if (card.columnId === 4) acc.notStarted++;
+      return acc;
+    },
+    { total: 0, done: 0, working: 0, stuck: 0, notStarted: 0 },
+  );
 
   const handleCardFocus = (cardId, field, placeholder) => {
-    // This function can be used for focus-related logic if needed
+    setCards((prevCards) =>
+      prevCards.map((card) => {
+        if (card.id === cardId) {
+          if (field === "title" && card.title === placeholder) {
+            return { ...card, title: "" };
+          }
+          if (field === "description" && card.description === placeholder) {
+            return { ...card, description: "" };
+          }
+        }
+        return card;
+      }),
+    );
   };
 
   const handleBoardTitleChange = (value) => {
@@ -110,7 +160,7 @@ function DashboardPage() {
   };
 
   const handleBoardTitleFocus = () => {
-    if (boardTitle === "Board title") {
+    if (boardTitle === "KANBAN APP" || boardTitle === "Board title") {
       setBoardTitle("");
     }
   };
@@ -126,10 +176,34 @@ function DashboardPage() {
       createdAt: now,
       updatedAt: now,
     };
+
     setCards([...cards, newCard]);
   };
+
   const handleDeleteCard = (cardId) => {
     setCards(cards.filter((card) => card.id !== cardId));
+  };
+
+  const [draggedCardId, setDraggedCardId] = useState(null);
+
+  const handleDragStart = (event, cardId) => {
+    setDraggedCardId(cardId);
+    event.dataTransfer.effectAllowed = "move";
+    event.dataTransfer.setData("text/plain", cardId.toString());
+  };
+
+  const handleDragEnd = () => {
+    setDraggedCardId(null);
+  };
+
+  const handleDrop = (columnId) => {
+    if (!draggedCardId) return;
+    setCards((prevCards) =>
+      prevCards.map((card) =>
+        card.id === draggedCardId ? { ...card, columnId } : card,
+      ),
+    );
+    setDraggedCardId(null);
   };
 
   const handleDescriptionChange = (cardId, newDescription) => {
@@ -184,8 +258,14 @@ function DashboardPage() {
           onFocus={handleBoardTitleFocus}
           onChange={(e) => handleBoardTitleChange(e.target.value)}
         />
-        <button onClick={handleLogout}>Log Out</button>
       </header>
+      <div>
+        Done: {stats.done}
+        Working: {stats.working}
+        Stuck: {stats.stuck}
+        Not Started: {stats.notStarted}
+      </div>
+
       <div className="board-columns">
         {columns.map((column) => (
           <div key={column.id} className="column">
@@ -204,11 +284,21 @@ function DashboardPage() {
                 <FontAwesomeIcon icon={faPlus} />
               </button>
             </div>
-            <div className="column-content">
+            <div
+              className="column-content"
+              onDragOver={(event) => event.preventDefault()}
+              onDrop={() => handleDrop(column.id)}
+            >
               {cards
                 .filter((card) => card.columnId === column.id) // Filter cards by columnId
                 .map((card) => (
-                  <div key={card.id} className="card">
+                  <div
+                    key={card.id}
+                    className={`card ${card.id === draggedCardId ? "dragging" : ""}`}
+                    draggable
+                    onDragStart={(event) => handleDragStart(event, card.id)}
+                    onDragEnd={handleDragEnd}
+                  >
                     <input
                       className="card-title-input"
                       value={card.title}

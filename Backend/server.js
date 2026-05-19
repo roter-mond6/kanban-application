@@ -24,7 +24,8 @@ const startServer = async () => {
       credentials: true,
     }),
   );
-  app.use(express.json());
+  app.use(express.json({ limit: "100mb" }));
+  app.use(express.urlencoded({ limit: "100mb", extended: true }));
 
   // Routes
   app.use("/api/auth", authRoutes);
@@ -45,6 +46,16 @@ const startServer = async () => {
   app.use("/boards", boardRoutes);
   app.use("/lists", listRoutes);
   app.use("/cards", cardRoutes);
+
+  app.use((err, req, res, next) => {
+    if (err.type === "entity.too.large" || err.code === "LIMIT_FILE_SIZE") {
+      return res.status(413).json({
+        error: "Image upload too large. Please choose a smaller photo.",
+      });
+    }
+    console.error("Server error:", err);
+    res.status(500).json({ error: "Server error" });
+  });
 
   // Start the server
   const PORT = process.env.BACKEND_PORT || process.env.PORT || 5001;

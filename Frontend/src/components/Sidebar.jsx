@@ -14,33 +14,15 @@ function Sidebar({ isOpen, onClose, boards = [] }) {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchUserProfile = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        const response = await fetch(`${API_BASE_URL}/api/users/profile`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        if (response.ok) {
-          const data = await response.json();
-          setUser(data);
-        }
-      } catch (error) {
-        console.error("Error fetching user profile:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (isOpen) {
-      fetchUserProfile();
-    }
-  }, [isOpen]);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState("");
 
   const handleHome = () => {
+    navigate("/boards");
+    onClose();
+  };
+
+  const handleProjectsSection = () => {
     navigate("/dashboard");
     onClose();
   };
@@ -66,12 +48,6 @@ function Sidebar({ isOpen, onClose, boards = [] }) {
         <div className="sidebar-top">
           {/* Profile Picture and Close Button */}
           <div className="sidebar-header">
-            <div className="sidebar-profile-pic">
-              <img
-                src={user?.profilePicture || "https://via.placeholder.com/50"}
-                alt="Profile"
-              />
-            </div>
             <button className="sidebar-close-btn" onClick={onClose}>
               <FontAwesomeIcon icon={faTimes} />
             </button>
@@ -86,25 +62,11 @@ function Sidebar({ isOpen, onClose, boards = [] }) {
 
             {/* Projects Section */}
             <div className="sidebar-projects-section">
-              <div className="projects-header">
+              <div className="projects-header" onClick={handleProjectsSection}>
                 <FontAwesomeIcon icon={faFolderOpen} className="nav-icon" />
                 <span>Projects</span>
               </div>
-              <div className="projects-list">
-                {boards && boards.length > 0 ? (
-                  boards.map((board) => (
-                    <button
-                      key={board._id || board.id}
-                      className="sidebar-project-item"
-                      onClick={() => handleProjectClick(board._id || board.id)}
-                    >
-                      {board.name || board.title || `Board ${board.id}`}
-                    </button>
-                  ))
-                ) : (
-                  <p className="no-projects">No projects yet</p>
-                )}
-              </div>
+              <div className="projects-list"></div>
             </div>
           </nav>
         </div>

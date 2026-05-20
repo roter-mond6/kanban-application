@@ -84,8 +84,6 @@ router.delete("/:id", authenticateToken, (req, res) => {
   res.json({ message: "Card deleted successfully" });
 });
 
-module.exports = router;
-
 // GET /cards/stats - return card counts for the logged-in user
 router.get("/stats", authenticateToken, (req, res) => {
   try {
@@ -129,3 +127,5 @@ router.get("/stats", authenticateToken, (req, res) => {
     return res.status(500).json({ error: "Failed to get card stats" });
   }
 });
+
+module.exports = router;

@@ -1,6 +1,8 @@
 const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
+const path = require("path");
+const fs = require("fs");
 const connectDB = require("./config/db");
 const authRoutes = require("./routes/authRoutes");
 const taskRoutes = require("./routes/taskRoutes");
@@ -9,6 +11,8 @@ const userRoutes = require("./routes/userRoutes");
 // Initialize dotenv to use environment variables
 dotenv.config();
 
+const frontendBuildPath = path.join(__dirname, "../Frontend/build");
+
 const startServer = async () => {
   await connectDB();
 
@@ -16,14 +20,14 @@ const startServer = async () => {
   const app = express();
 
   // Middleware
-  app.use(
-    cors({
-      origin: "http://localhost:3000",
-      methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-      allowedHeaders: ["Content-Type", "Authorization"],
-      credentials: true,
-    }),
-  );
+  const corsOptions = {
+    origin: process.env.FRONTEND_URL || true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  };
+
+  app.use(cors(corsOptions));
+  app.options("*", cors(corsOptions));
   app.use(express.json({ limit: "100mb" }));
   app.use(express.urlencoded({ limit: "100mb", extended: true }));
 
@@ -31,11 +35,6 @@ const startServer = async () => {
   app.use("/api/auth", authRoutes);
   app.use("/api/tasks", taskRoutes);
   app.use("/api/users", userRoutes);
-
-  // Define a simple route
-  app.get("/", (req, res) => {
-    res.send("Server is running!");
-  });
 
   // Import board, list, and card routes
   const boardRoutes = require("./routes/boardRoutes");
@@ -46,6 +45,18 @@ const startServer = async () => {
   app.use("/boards", boardRoutes);
   app.use("/lists", listRoutes);
   app.use("/cards", cardRoutes);
+
+  if (fs.existsSync(frontendBuildPath)) {
+    app.use(express.static(frontendBuildPath));
+    app.get("*", (req, res) => {
+      res.sendFile(path.join(frontendBuildPath, "index.html"));
+    });
+  } else {
+    // Define a simple route when frontend bundle is not available
+    app.get("/", (req, res) => {
+      res.send("Server is running!");
+    });
+  }
 
   app.use((err, req, res, next) => {
     if (err.type === "entity.too.large" || err.code === "LIMIT_FILE_SIZE") {

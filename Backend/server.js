@@ -47,7 +47,10 @@ const startServer = async () => {
 
   if (fs.existsSync(frontendBuildPath)) {
     app.use(express.static(frontendBuildPath));
-    app.all("*", (req, res) => {
+
+    // Fallback for SPA routes: serve index.html for any request
+    // Use app.use rather than a path string to avoid path-to-regexp parsing issues
+    app.use((req, res) => {
       res.sendFile(path.join(frontendBuildPath, "index.html"));
     });
   } else {

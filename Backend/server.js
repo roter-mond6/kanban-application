@@ -48,7 +48,7 @@ const startServer = async () => {
 
   if (fs.existsSync(frontendBuildPath)) {
     app.use(express.static(frontendBuildPath));
-    app.get("*", (req, res) => {
+    app.all("*", (req, res) => {
       res.sendFile(path.join(frontendBuildPath, "index.html"));
     });
   } else {

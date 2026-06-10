@@ -28,13 +28,26 @@ function RegisterPage() {
         body: JSON.stringify({ email, password }),
       });
 
+      const text = await response.text();
+
       if (!response.ok) {
-        const errorData = await response.json();
-        setError(errorData.error || "Registration failed. Please try again.");
+        let errorMessage = `Request failed with status ${response.status}`;
+        try {
+          const errorData = JSON.parse(text || "{}");
+          errorMessage = errorData.error || errorData.message || errorMessage;
+        } catch (err) {
+          if (text) errorMessage = text;
+        }
+        setError(errorMessage || "Registration failed. Please try again.");
         return;
       }
 
-      const data = await response.json();
+      let data = {};
+      try {
+        data = JSON.parse(text || "{}");
+      } catch (err) {
+        console.warn("Registration succeeded but response is not JSON:", text);
+      }
       console.log("Registration successful:", data);
 
       // Redirect to login page after successful registration

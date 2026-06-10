@@ -29,7 +29,7 @@ body {
   left: 0;
   right: 0;
   z-index: 1000;
-  gap: 1040px;
+  gap: 1180px;
   height: 64px;
 }
 
@@ -105,9 +105,8 @@ body {
   padding-right: 8px;
 }
 
-/* New layout styles for stats + progress */
 .board-main {
-  padding: 88px 24px 40px; /* allow for fixed header (height + gap) */
+  padding: 200px 24px 40px;
   display: flex;
   flex-direction: column;
   gap: 24px;

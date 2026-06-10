@@ -11,6 +11,17 @@ const userRoutes = require("./routes/userRoutes");
 // Initialize dotenv to use environment variables
 dotenv.config();
 
+// Log env vars so we can confirm Render provided them (masked values won't show in UI)
+console.log("ENV FRONTEND_URL:", process.env.FRONTEND_URL || "(not set)");
+console.log(
+  "ENV KANBAN_APP_API_URL:",
+  process.env.KANBAN_APP_API_URL || "(not set)",
+);
+console.log(
+  "ENV REACT_APP_API_URL:",
+  process.env.REACT_APP_API_URL || "(not set)",
+);
+
 const frontendBuildPath = path.join(__dirname, "../Frontend/build");
 
 const startServer = async () => {
@@ -28,6 +39,15 @@ const startServer = async () => {
 
   app.use(cors(corsOptions));
   app.use(express.json({ limit: "100mb" }));
+
+  // Return a clear 400 error when JSON parsing fails (malformed JSON)
+  app.use((err, req, res, next) => {
+    if (err instanceof SyntaxError && err.status === 400 && "body" in err) {
+      console.error("Invalid JSON received:", err.message);
+      return res.status(400).json({ error: "Invalid JSON body" });
+    }
+    next(err);
+  });
   app.use(express.urlencoded({ limit: "100mb", extended: true }));
 
   // Routes

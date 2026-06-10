@@ -8,6 +8,7 @@ const generateToken = (id) => {
 
 // Register User
 exports.registerUser = async (req, res) => {
+  console.log('Register request body:', req.body);
   const { email, password } = req.body;
 
   try {
@@ -35,6 +36,7 @@ exports.registerUser = async (req, res) => {
 
 // Login User
 exports.loginUser = async (req, res) => {
+  console.log('Login request body:', req.body);
   const { email, password } = req.body;
 
   try {

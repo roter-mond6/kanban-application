@@ -20,14 +20,28 @@ function LoginPage() {
         body: JSON.stringify({ email, password }),
       });
 
+      // Read body as text so we never crash when server returns HTML or empty responses
+      const text = await response.text();
+
       if (!response.ok) {
-        const errorData = await response.json();
-        console.error("Login failed:", errorData); // Log the error details
-        alert(errorData.error || "Login failed. Please try again.");
+        let errorMessage = `Request failed with status ${response.status}`;
+        try {
+          const errorData = JSON.parse(text || "{}");
+          errorMessage = errorData.error || errorData.message || errorMessage;
+        } catch (err) {
+          if (text) errorMessage = text;
+        }
+        console.error("Login failed:", response.status, text);
+        alert(errorMessage);
         return;
       }
 
-      const data = await response.json();
+      let data = {};
+      try {
+        data = JSON.parse(text || "{}");
+      } catch (err) {
+        console.warn("Login succeeded but response is not JSON:", text);
+      }
       console.log("Login successful:", data);
 
       // Save the token to localStorage

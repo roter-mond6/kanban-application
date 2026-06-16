@@ -31,8 +31,47 @@ const startServer = async () => {
   const app = express();
 
   // Middleware
+  // Read FRONTEND_URL from env (comma-separated OK). If empty, allow all origins.
+  const rawFrontends = process.env.FRONTEND_URL || "";
+  const allowedOrigins = rawFrontends
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  const originOption = (origin, callback) => {
+    // Allow non-browser requests (no Origin header)
+    if (!origin) return callback(null, true);
+    // If no allowed origins configured, allow any origin
+    if (allowedOrigins.length === 0) return callback(null, true);
+
+    try {
+      const originHost = new URL(origin).host; // e.g. kanban-application-sluy-ge0kl0hyq-...vercel.app
+
+      for (const entry of allowedOrigins) {
+        const entryUrl = entry.includes("://") ? entry : `https://${entry}`;
+        const entryHost = new URL(entryUrl).host; // e.g. kanban-application-sluy.vercel.app
+        const entryPrefix = entryHost.split(".")[0]; // e.g. kanban-application-sluy
+
+        // Exact host match (production)
+        if (originHost === entryHost) return callback(null, true);
+
+        // Allow Vercel preview subdomains that start with the same project prefix
+        // e.g. kanban-application-sluy-<preview>.vercel.app
+        if (
+          originHost.endsWith(".vercel.app") &&
+          originHost.startsWith(entryPrefix)
+        )
+          return callback(null, true);
+      }
+    } catch (err) {
+      // If URL parsing fails, deny by default below
+    }
+
+    return callback(new Error("Not allowed by CORS"));
+  };
+
   const corsOptions = {
-    origin: process.env.FRONTEND_URL || true,
+    origin: originOption,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
   };
